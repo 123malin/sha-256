@@ -71,7 +71,10 @@ const void store_message(const std::string &hex_str)
 const int calc_padding()
 {
     int k = 0;
-    while ((l + 1 + k % 512) != 448) ++k;
+    while ((l + 1 + k) % 512 != 448)
+    {
+        ++k;
+    }
     return k;
 }
 
@@ -86,6 +89,8 @@ const void pad_message()
 
     if (l % 512 == 0) return; // No padding necessary
 
+    // TODO Handle l > 512
+
     std::cout << "k: " << k << std::endl;
     // Add the zeroes of the first word
     // Bitshift to make it correct when size not divisible by a word
@@ -99,7 +104,7 @@ const void pad_message()
 
         zeroes = 0; // DEBUG
 
-        // Append k zeroes after the word
+        // Append k zeroes after the word by bitshifting the bytes into place
         // TODO Assumes k > 32 - bits
         for (WORD i = 0; i < (WORD) (32 - bits - 1); ++i)
         {
@@ -116,6 +121,7 @@ const void pad_message()
     {
         zeroes = 31; // DEBUG
 
+        // Append 1 before the least significant bit
         M.push_back(0xf0000000);
         k = k - 31;
     }
@@ -155,15 +161,17 @@ int main()
         std::cout << std::endl;
         std::cout << "l: " << l << std::endl;
 
+        std::cout << "Plain words: " << M.size() << std::endl;
+
         // Check if message needs padding
         if (l % 512 != 0) pad_message();
 
-        std::cout << "M padded: ";
+        std::cout << "Padded: ";
         for (WORD i = 0; i < M.size(); ++i)
             std::cout << M[i] << " ";
         std::cout << std::endl;
 
-        std::cout << "# words: " << M.size() << std::endl;
+        std::cout << "Padded words: " << M.size() << std::endl;
 
         M.clear(); // Reset message to hash a new one
     }

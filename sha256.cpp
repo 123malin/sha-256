@@ -13,8 +13,8 @@ int l = 0;           // Message length in bits
  */
 const int bytes_to_store(const WORD i)
 {
-    int bytes = 1;
-    if (i == 0)       return 0;
+    int bytes = 0;
+    if (i > 0)        ++bytes;
     if (i > 255)      ++bytes;
     if (i > 65535)    ++bytes;
     if (i > 16777215) ++bytes;
@@ -48,6 +48,7 @@ const void store_message(const std::string &hex_str)
     for (; i < str_length / 8; ++i)
     {
         WORD word = std::stoul(hex_str.substr(i * 8, 8), nullptr, 16);
+        std::cout << "store full word: " << word << std::endl;
         M.push_back(word);
         l += 32;
     }
@@ -57,9 +58,9 @@ const void store_message(const std::string &hex_str)
     {
         WORD word = std::stoul(hex_str.substr(i * 8, hex_str.length() - i * 8),
                 nullptr, 16);
-        std::cout << word << std::endl;
+        std::cout << "store < full word: " << word << std::endl;
         M.push_back(word);
-        std::cout << "bytes to store: " << bytes_to_store(word) << std::endl;
+        std::cout << "with bytes to store: " << bytes_to_store(word) << std::endl;
         l += bytes_to_store(word) * 8;
     }
 }
@@ -71,10 +72,7 @@ const void store_message(const std::string &hex_str)
 const int calc_padding()
 {
     int k = 0;
-    while ((l + 1 + k) % 512 != 448)
-    {
-        ++k;
-    }
+    while ((l + 1 + k) % 512 != 448) ++k;
     return k;
 }
 
@@ -97,7 +95,9 @@ const void pad_message()
     if (l % 32 != 0)
     {
         last_word = M.back();
+        std::cout << "last_word: " << last_word << std::endl;
         bits = bit_size(last_word);
+        std::cout << "with bit size: " << bits << std::endl;
         // Append 1 before the least significant bit
         last_word <<= 1;
         last_word |= 0x1;
@@ -112,6 +112,8 @@ const void pad_message()
             --k;
             ++zeroes;
         }
+
+        std::cout << "last_word shifted: " << last_word << std::endl;
 
         std::cout << "k after decr: " << k << std::endl;
         M.back() = last_word;

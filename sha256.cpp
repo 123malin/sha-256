@@ -21,8 +21,8 @@ const WORD K[] = {0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x
                   0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2};
 
 std::vector<std::vector<WORD>> M; // Message to be hashed
+std::vector<std::vector<WORD>> H; // Hashed message
 std::vector<BYTE> bytes;          // Plain and padded message bytes
-WORD H[8][8];                     // Hashed message
 WORD W[80];                       // Message schedule
 ll l = 0;                         // Message length in bits
 int N;                            // Number of blocks in padded message
@@ -129,14 +129,24 @@ const void parse_message()
  */
 const void init_hash()
 {
-    H[0][0] = 0x6a09e667;
-    H[0][1] = 0xbb67ae85;
-    H[0][2] = 0x3c6ef372;
-    H[0][3] = 0xa54ff53a;
-    H[0][4] = 0x510e527f;
-    H[0][5] = 0x9b05688c;
-    H[0][6] = 0x1f83d9ab;
-    H[0][7] = 0x5be0cd19;
+    // TODO
+    /* H[0][0] = 0x6a09e667; */
+    /* H[0][1] = 0xbb67ae85; */
+    /* H[0][2] = 0x3c6ef372; */
+    /* H[0][3] = 0xa54ff53a; */
+    /* H[0][4] = 0x510e527f; */
+    /* H[0][5] = 0x9b05688c; */
+    /* H[0][6] = 0x1f83d9ab; */
+    /* H[0][7] = 0x5be0cd19; */
+    std::vector<WORD> h0 = {0x6a09e667,
+                            0xbb67ae85,
+                            0x3c6ef372,
+                            0xa54ff53a,
+                            0x510e527f,
+                            0x9b05688c,
+                            0x1f83d9ab,
+                            0x5be0cd19};
+    H.push_back(h0);
 }
 
 /**
@@ -208,6 +218,7 @@ const WORD Maj(const WORD &x, const WORD &y, const WORD &z)
  */
 const void compute_hash()
 {
+    std::vector<WORD> hash_block(8);
     for (int i = 1; i <= N; ++i)
     {
         // Prepare message schedule
@@ -241,16 +252,37 @@ const void compute_hash()
             a = T1 + T2;
         }
 
-        // Compute intermediate hash values
-        H[i][0] = a + H[i - 1][0];
-        H[i][1] = a + H[i - 1][1];
-        H[i][2] = a + H[i - 1][2];
-        H[i][3] = a + H[i - 1][3];
-        H[i][4] = a + H[i - 1][4];
-        H[i][5] = a + H[i - 1][5];
-        H[i][6] = a + H[i - 1][6];
-        H[i][7] = a + H[i - 1][7];
+        // Compute intermediate hash values by assigning them to H^i
+        // TODO
+        /* H[i][0] = a + H[i - 1][0]; */
+        /* H[i][1] = a + H[i - 1][1]; */
+        /* H[i][2] = a + H[i - 1][2]; */
+        /* H[i][3] = a + H[i - 1][3]; */
+        /* H[i][4] = a + H[i - 1][4]; */
+        /* H[i][5] = a + H[i - 1][5]; */
+        /* H[i][6] = a + H[i - 1][6]; */
+        /* H[i][7] = a + H[i - 1][7]; */
+        hash_block[0] = a + H[i - 1][0];
+        hash_block[1] = a + H[i - 1][1];
+        hash_block[2] = a + H[i - 1][2];
+        hash_block[3] = a + H[i - 1][3];
+        hash_block[4] = a + H[i - 1][4];
+        hash_block[5] = a + H[i - 1][5];
+        hash_block[6] = a + H[i - 1][6];
+        hash_block[7] = a + H[i - 1][7];
+        H.push_back(hash_block); // TODO Is this destroyed later?
     }
+}
+
+/**
+ * Output the generated hash value as a hexadecimal string.
+ */
+const void output_hash()
+{
+    // Concatenate the final hash blocks
+    for (int i = 0; i < 8; ++i)
+        std::cout << std::hex << H[N][i];
+    std::cout << std::endl;
 }
 
 /**
@@ -259,7 +291,9 @@ const void compute_hash()
 const void clear()
 {
     bytes.clear();
-    M.clear(); // TODO Does this properly clear the subvectors?
+    // TODO Does this properly clear the subvectors?
+    M.clear();
+    H.clear();
 }
 
 int main()
@@ -311,6 +345,9 @@ int main()
 
         // Compute the hash value
         compute_hash();
+
+        // Output the generated hash value
+        output_hash();
 
         // Reset message to hash a new one
         clear();

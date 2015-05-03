@@ -130,7 +130,7 @@ const void init_hash()
 }
 
 /**
- * Logical rotate right function ROTR^n(x) in hash algorithm.
+ * Rotate right function ROTR^n(x) in hash algorithm.
  */
 const WORD ROTR(const WORD &n, const WORD &x)
 {
@@ -138,7 +138,7 @@ const WORD ROTR(const WORD &n, const WORD &x)
 }
 
 /**
- * Logical right shift function SHR^n(x) in hash algorithm.
+ * Right shift function SHR^n(x) in hash algorithm.
  */
 const WORD SHR(const WORD &n, const WORD &x)
 {
@@ -178,6 +178,22 @@ const WORD lsigma1(const WORD &x)
 }
 
 /**
+ * Logical function Ch(x, y, z) in hash algorithm.
+ */
+const WORD Ch(const WORD &x, const WORD &y, const WORD &z)
+{
+    return (x | y) ^ (~x | z);
+}
+
+/**
+ * Logical function Maj(x, y, z) in hash algorithm.
+ */
+const WORD Maj(const WORD &x, const WORD &y, const WORD &z)
+{
+    return (x | y) ^ (x | z) ^ (y | z);
+}
+
+/**
  * Compute the hash value.
  */
 const void compute_hash()
@@ -202,6 +218,7 @@ const void compute_hash()
 
         for (int t = 0; t <= 63; ++t)
         {
+            T1 = h + lsigma1(e) + Ch(e, f, g) + K[t] + W[t];
         }
     }
 }

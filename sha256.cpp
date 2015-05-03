@@ -35,7 +35,7 @@ WORD T1, T2;
 
 
 /**
- * Take the given hex string and store the bytes in a global vector.
+ * Take the given hexadecimal string and store the bytes in a global vector.
  * Also update the message length.
  */
 const void store_message_bytes(const std::string &hex_str)
@@ -69,7 +69,7 @@ const void pad_message()
     int k = calc_padding();
     int zeroes = 0; // DEBUG
 
-    if (l % 512 == 0) return; // No padding necessary
+    if ((l != 0) && (l % 512 == 0)) return; // No padding necessary
 
     std::cout << "k: " << k << std::endl;
 
@@ -300,10 +300,9 @@ const void clear()
 
 int main()
 {
-    // Read each line as a hex string to be hashed
+    // Read each line as a hexadecimal string to be hashed
     for (std::string line; std::getline(std::cin, line);) {
         // TODO Handle empty lines
-        // TODO Doesn't seem to clear properly
         // Store the plain bytes of the message
         store_message_bytes(line);
 
@@ -315,8 +314,8 @@ int main()
 
         std::cout << "Number of plain bytes: " << bytes.size() << std::endl;
 
-        // Pad the bytes if necessary
-        if (l % 512 != 0) pad_message();
+        // Pad the bytes (if necessary)
+        pad_message();
 
         std::cout << "Padded bytes:" << std::endl;
         for (WORD i = 0; i < bytes.size(); ++i)

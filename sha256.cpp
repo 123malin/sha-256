@@ -41,7 +41,6 @@ WORD T1, T2;
 const void store_message_bytes(const std::string &hex_str)
 {
     int str_length = hex_str.length();
-    std::cout << "Message string length: " << str_length << std::endl;
     for (int i = 0, j = 0; i < str_length / 2; ++i, j += 2)
     {
         BYTE byte = std::stoi(hex_str.substr(j, 2), nullptr, 16);
@@ -67,35 +66,24 @@ const int calc_padding()
 const void pad_message()
 {
     int k = calc_padding();
-    int zeroes = 0; // DEBUG
-
     if ((l != 0) && (l % 512 == 0)) return; // No padding necessary
-
-    std::cout << "k: " << k << std::endl;
 
     // Append 1 followed by zeroes before the least significant bit,
     // assuming full bytes as input
     bytes.push_back(0x80);
     k = k - 7;
-    zeroes += 7;
 
     // Append the remaining zeroes of k
     for (int i = 0; i < (k / 8); ++i)
     {
         bytes.push_back(0);
-        zeroes += 8;
     }
-
-    std::cout << "zeroes: " << zeroes << std::endl;
-
-    /* l = 0x8040201008040201; // DEBUG */
 
     // Finally append the length in binary to the message as the least
     // significant bits, assuming a 64-bit number
     for (int i = 1; i < 9; ++i)
     {
         bytes.push_back(l >> (64 - i * 8));
-        /* std::cout << "Append byte: " << (WORD) (BYTE) (l >> (64 - i * 8)) << std::endl; */
     }
 }
 
@@ -122,7 +110,6 @@ const void parse_message()
         M.push_back(block);
     }
     N = n;
-    std::cout << "N: " << N << std::endl;
 }
 
 /**
@@ -130,15 +117,6 @@ const void parse_message()
  */
 const void init_hash()
 {
-    // TODO
-    /* H[0][0] = 0x6a09e667; */
-    /* H[0][1] = 0xbb67ae85; */
-    /* H[0][2] = 0x3c6ef372; */
-    /* H[0][3] = 0xa54ff53a; */
-    /* H[0][4] = 0x510e527f; */
-    /* H[0][5] = 0x9b05688c; */
-    /* H[0][6] = 0x1f83d9ab; */
-    /* H[0][7] = 0x5be0cd19; */
     std::vector<WORD> h0 = {0x6a09e667,
                             0xbb67ae85,
                             0x3c6ef372,
@@ -222,7 +200,6 @@ const void compute_hash()
     std::vector<WORD> hash_block(8);
     for (int i = 1; i <= N; ++i)
     {
-        std::cout << i << std::endl;
         // Prepare message schedule
         for (int t = 0; t <= 15; ++t)
             W[t] = M[i - 1][t]; // M^i in spec
@@ -255,15 +232,6 @@ const void compute_hash()
         }
 
         // Compute intermediate hash values by assigning them to H^i
-        // TODO
-        /* H[i][0] = a + H[i - 1][0]; */
-        /* H[i][1] = a + H[i - 1][1]; */
-        /* H[i][2] = a + H[i - 1][2]; */
-        /* H[i][3] = a + H[i - 1][3]; */
-        /* H[i][4] = a + H[i - 1][4]; */
-        /* H[i][5] = a + H[i - 1][5]; */
-        /* H[i][6] = a + H[i - 1][6]; */
-        /* H[i][7] = a + H[i - 1][7]; */
         hash_block[0] = a + H[i - 1][0];
         hash_block[1] = b + H[i - 1][1];
         hash_block[2] = c + H[i - 1][2];
@@ -302,52 +270,17 @@ int main()
 {
     // Read each line as a hexadecimal string to be hashed
     for (std::string line; std::getline(std::cin, line);) {
-        // TODO Handle empty lines
         // Store the plain bytes of the message
         store_message_bytes(line);
-
-        std::cout << "Read plain bytes:" << std::endl;
-        for (WORD i = 0; i < bytes.size(); ++i)
-            std::cout << std::hex << (WORD) bytes[i] << std::dec << " ";
-        std::cout << std::endl;
-        std::cout << "l: " << l << std::endl;
-
-        std::cout << "Number of plain bytes: " << bytes.size() << std::endl;
 
         // Pad the bytes (if necessary)
         pad_message();
 
-        std::cout << "Padded bytes:" << std::endl;
-        for (WORD i = 0; i < bytes.size(); ++i)
-            std::cout << std::hex << (WORD) bytes[i] << std::dec << " ";
-        std::cout << std::endl;
-
-        std::cout << "Number of padded bytes: " << bytes.size() << std::endl;
-
         // Parse message into word blocks
         parse_message();
 
-        std::cout << "Parsed words:" << std::endl;
-        int count = 0;
-        for (int i = 0; i < N; ++i)
-        {
-            for (int j = 0; j < 16; ++j)
-            {
-                std::cout << std::hex << M[i][j] << std::dec << " ";
-                ++ count;
-            }
-            std::cout << std::endl;
-        }
-
-        std::cout << "Number of parsed words: " << count << std::endl;
-
         // Set the inital hash value
         init_hash();
-
-        /* std::cout << "Init hash:" << std::endl; */
-        /* for (int i = 0; i < 8; ++i) */
-        /*     std::cout << std::hex << H[0][i] << std::dec << " "; */
-        /* std::cout << std::endl; */
 
         // Compute the hash value
         compute_hash();

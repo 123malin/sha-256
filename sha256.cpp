@@ -13,7 +13,14 @@ typedef unsigned long long ll;
 std::vector<BYTE> bytes; // Plain and padded message bytes
 std::vector<WORD> M;     // Message to be hashed
 std::vector<WORD> H(8);  // Hashed message
+std::vector<WORD> W(80); // Message schedule
 ll l = 0;                // Message length in bits
+
+// Working variables
+WORD a, b, c, d, e;
+
+// Temporary variables
+WORD T1, T2;
 
 
 /**
@@ -113,6 +120,64 @@ const void init_hash()
          0x5be0cd19};
 }
 
+/**
+ * Logical rotate right function ROTR^n(x) in hash algorithm.
+ */
+const WORD ROTR(const WORD &n, const WORD &x)
+{
+    return (x >> n) | (x << (32 - n));
+}
+
+/**
+ * Logical right shift function SHR^n(x) in hash algorithm.
+ */
+const WORD SHR(const WORD &n, const WORD &x)
+{
+    return x >> n;
+}
+
+/**
+ * Logical function sigma^256_0(x) in hash algorithm.
+ */
+const WORD sigma0(const WORD &x)
+{
+    return ROTR(7, x) ^ ROTR(18, x) ^ SHR(3, x);
+}
+
+/**
+ * Logical function sigma^256_1(x) in hash algorithm.
+ */
+const WORD sigma1(const WORD &x)
+{
+    return ROTR(17, x) ^ ROTR(19, x) ^ SHR(10, x);
+}
+
+/**
+ * Compute the hash value.
+ */
+const void compute_hash()
+{
+    for (WORD i = 1; i <= M.size(); ++i)
+    {
+        // Prepare message schedule
+        for (int t = 0; t <= 15; ++t)
+            W[t] = M[t];
+        for (int t = 16; t <= 63; ++t)
+            W[t] = sigma1(W[t - 2]) + W[t - 7] + sigma0(W[t - 15]) + W[t - 16];
+    }
+}
+
+/**
+ * Clear all working vectors.
+ */
+const void clear()
+{
+    bytes.clear();
+    M.clear();
+    H.clear();
+    W.clear();
+}
+
 int main()
 {
     // Read each line as a hex string to be hashed
@@ -157,9 +222,10 @@ int main()
             std::cout << std::hex << H[i] << std::dec << " ";
         std::cout << std::endl;
 
+        // Compute the hash value
+        compute_hash();
+
         // Reset message to hash a new one
-        bytes.clear();
-        M.clear();
-        H.clear();
+        clear();
     }
 }

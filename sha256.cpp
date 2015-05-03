@@ -23,7 +23,7 @@ const WORD K[] = {0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x
 std::vector<std::vector<WORD>> M; // Message to be hashed
 std::vector<std::vector<WORD>> H; // Hashed message
 std::vector<BYTE> bytes;          // Plain and padded message bytes
-WORD W[80];                       // Message schedule
+WORD W[64];                       // Message schedule
 ll l = 0;                         // Message length in bits
 int N;                            // Number of blocks in padded message
 
@@ -350,11 +350,6 @@ int main()
 
         // Compute the hash value
         compute_hash();
-
-        std::cout << "Final hash:" << std::endl;
-        for (int i = 0; i < 8; ++i)
-            std::cout << std::hex << H[N][i] << std::dec << " ";
-        std::cout << std::endl;
 
         // Output the generated hash value
         output_hash();

@@ -167,19 +167,19 @@ const WORD SHR(const WORD &n, const WORD &x)
 }
 
 /**
- * Logical function (small) sigma^256_0(x) in hash algorithm.
+ * Logical function Ch(x, y, z) in hash algorithm.
  */
-const WORD ssigma0(const WORD &x)
+const WORD Ch(const WORD &x, const WORD &y, const WORD &z)
 {
-    return ROTR(7, x) ^ ROTR(18, x) ^ SHR(3, x);
+    return (x | y) ^ (~x | z);
 }
 
 /**
- * Logical function (small) sigma^256_1(x) in hash algorithm.
+ * Logical function Maj(x, y, z) in hash algorithm.
  */
-const WORD ssigma1(const WORD &x)
+const WORD Maj(const WORD &x, const WORD &y, const WORD &z)
 {
-    return ROTR(17, x) ^ ROTR(19, x) ^ SHR(10, x);
+    return (x | y) ^ (x | z) ^ (y | z);
 }
 
 /**
@@ -199,19 +199,19 @@ const WORD lsigma1(const WORD &x)
 }
 
 /**
- * Logical function Ch(x, y, z) in hash algorithm.
+ * Logical function (small) sigma^256_0(x) in hash algorithm.
  */
-const WORD Ch(const WORD &x, const WORD &y, const WORD &z)
+const WORD ssigma0(const WORD &x)
 {
-    return (x | y) ^ (~x | z);
+    return ROTR(7, x) ^ ROTR(18, x) ^ SHR(3, x);
 }
 
 /**
- * Logical function Maj(x, y, z) in hash algorithm.
+ * Logical function (small) sigma^256_1(x) in hash algorithm.
  */
-const WORD Maj(const WORD &x, const WORD &y, const WORD &z)
+const WORD ssigma1(const WORD &x)
 {
-    return (x | y) ^ (x | z) ^ (y | z);
+    return ROTR(17, x) ^ ROTR(19, x) ^ SHR(10, x);
 }
 
 /**

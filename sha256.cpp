@@ -3,8 +3,8 @@
  * http://csrc.nist.gov/publications/fips/fips180-4/fips-180-4.pdf
  */
 #include <iostream>
-#include <vector>
 #include <sstream>
+#include <vector>
 
 typedef unsigned char BYTE;
 typedef unsigned int WORD;
@@ -12,6 +12,7 @@ typedef unsigned long long ll;
 
 std::vector<BYTE> bytes; // Plain and padded message bytes
 std::vector<WORD> M;     // Message to be hashed
+std::vector<WORD> H(8);  // Hashed message
 ll l = 0;                // Message length in bits
 
 
@@ -97,6 +98,21 @@ const void parse_message()
     }
 }
 
+/**
+ * Initialise the hash value H_0.
+ */
+const void init_hash()
+{
+    H = {0x6a09e667,
+         0xbb67ae85,
+         0x3c6ef372,
+         0xa54ff53a,
+         0x510e527f,
+         0x9b05688c,
+         0x1f83d9ab,
+         0x5be0cd19};
+}
+
 int main()
 {
     // Read each line as a hex string to be hashed
@@ -133,8 +149,17 @@ int main()
 
         std::cout << "Number of parsed words: " << M.size() << std::endl;
 
+        // Set the inital hash value
+        init_hash();
+
+        std::cout << "Hash:" << std::endl;
+        for (WORD i = 0; i < H.size(); ++i)
+            std::cout << std::hex << H[i] << std::dec << " ";
+        std::cout << std::endl;
+
         // Reset message to hash a new one
         bytes.clear();
         M.clear();
+        H.clear();
     }
 }

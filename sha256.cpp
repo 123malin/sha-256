@@ -288,13 +288,14 @@ const void output_hash()
 }
 
 /**
- * Clear all working vectors.
+ * Clear all working vectors and variables.
  */
 const void clear()
 {
-    bytes.clear();
     M.clear();
     H.clear();
+    bytes.clear();
+    l = 0;
 }
 
 int main()
@@ -302,6 +303,7 @@ int main()
     // Read each line as a hex string to be hashed
     for (std::string line; std::getline(std::cin, line);) {
         // TODO Handle empty lines
+        // TODO Doesn't seem to clear properly
         // Store the plain bytes of the message
         store_message_bytes(line);
 
@@ -343,10 +345,10 @@ int main()
         // Set the inital hash value
         init_hash();
 
-        std::cout << "Init hash:" << std::endl;
-        for (int i = 0; i < 8; ++i)
-            std::cout << std::hex << H[0][i] << std::dec << " ";
-        std::cout << std::endl;
+        /* std::cout << "Init hash:" << std::endl; */
+        /* for (int i = 0; i < 8; ++i) */
+        /*     std::cout << std::hex << H[0][i] << std::dec << " "; */
+        /* std::cout << std::endl; */
 
         // Compute the hash value
         compute_hash();

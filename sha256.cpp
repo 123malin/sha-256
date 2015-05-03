@@ -240,6 +240,16 @@ const void compute_hash()
             b = a;
             a = T1 + T2;
         }
+
+        // Compute intermediate hash values
+        H[i][0] = a + H[i - 1][0];
+        H[i][1] = a + H[i - 1][1];
+        H[i][2] = a + H[i - 1][2];
+        H[i][3] = a + H[i - 1][3];
+        H[i][4] = a + H[i - 1][4];
+        H[i][5] = a + H[i - 1][5];
+        H[i][6] = a + H[i - 1][6];
+        H[i][7] = a + H[i - 1][7];
     }
 }
 

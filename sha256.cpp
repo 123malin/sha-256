@@ -30,7 +30,7 @@ int N;                            // Number of blocks in padded message
 // Working variables
 WORD a, b, c, d, e, f, g, h;
 
-// Temporary variables
+// Temporary words
 WORD T1, T2;
 
 
@@ -265,13 +265,13 @@ const void compute_hash()
         /* H[i][6] = a + H[i - 1][6]; */
         /* H[i][7] = a + H[i - 1][7]; */
         hash_block[0] = a + H[i - 1][0];
-        hash_block[1] = a + H[i - 1][1];
-        hash_block[2] = a + H[i - 1][2];
-        hash_block[3] = a + H[i - 1][3];
-        hash_block[4] = a + H[i - 1][4];
-        hash_block[5] = a + H[i - 1][5];
-        hash_block[6] = a + H[i - 1][6];
-        hash_block[7] = a + H[i - 1][7];
+        hash_block[1] = b + H[i - 1][1];
+        hash_block[2] = c + H[i - 1][2];
+        hash_block[3] = d + H[i - 1][3];
+        hash_block[4] = e + H[i - 1][4];
+        hash_block[5] = f + H[i - 1][5];
+        hash_block[6] = g + H[i - 1][6];
+        hash_block[7] = h + H[i - 1][7];
         H.push_back(hash_block);
     }
 }

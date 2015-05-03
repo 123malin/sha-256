@@ -171,7 +171,7 @@ const WORD SHR(const WORD &n, const WORD &x)
  */
 const WORD Ch(const WORD &x, const WORD &y, const WORD &z)
 {
-    return (x | y) ^ (~x | z);
+    return (x & y) ^ (~x & z);
 }
 
 /**
@@ -179,7 +179,7 @@ const WORD Ch(const WORD &x, const WORD &y, const WORD &z)
  */
 const WORD Maj(const WORD &x, const WORD &y, const WORD &z)
 {
-    return (x | y) ^ (x | z) ^ (y | z);
+    return (x & y) ^ (x & z) ^ (y & z);
 }
 
 /**

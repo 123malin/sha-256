@@ -108,7 +108,7 @@ const void parse_message()
     WORD n = 0;
     for (int i = 0; n < bytes.size() / 64; ++n)
     {
-        std::vector<WORD> block(16); // TODO Will this be destroyed?
+        std::vector<WORD> block(16);
         for (int j = 0; j < 16; ++j)
         {
             WORD word = 0;
@@ -222,9 +222,10 @@ const void compute_hash()
     std::vector<WORD> hash_block(8);
     for (int i = 1; i <= N; ++i)
     {
+        std::cout << i << std::endl;
         // Prepare message schedule
         for (int t = 0; t <= 15; ++t)
-            W[t] = M[i][t];
+            W[t] = M[i - 1][t]; // M^i in spec
         for (int t = 16; t <= 63; ++t)
             W[t] = ssigma1(W[t - 2]) + W[t - 7] + ssigma0(W[t - 15]) + W[t - 16];
 
@@ -271,7 +272,7 @@ const void compute_hash()
         hash_block[5] = a + H[i - 1][5];
         hash_block[6] = a + H[i - 1][6];
         hash_block[7] = a + H[i - 1][7];
-        H.push_back(hash_block); // TODO Is this destroyed later?
+        H.push_back(hash_block);
     }
 }
 
@@ -292,7 +293,6 @@ const void output_hash()
 const void clear()
 {
     bytes.clear();
-    // TODO Does this properly clear the subvectors?
     M.clear();
     H.clear();
 }
@@ -327,30 +327,39 @@ int main()
         parse_message();
 
         std::cout << "Parsed words:" << std::endl;
-        for (WORD i = 0; i < M.size(); ++i)
+        int count = 0;
+        for (int i = 0; i < N; ++i)
         {
-            for (WORD j = 0; j < 16; ++j)
+            for (int j = 0; j < 16; ++j)
+            {
                 std::cout << std::hex << M[i][j] << std::dec << " ";
+                ++ count;
+            }
             std::cout << std::endl;
         }
 
-        std::cout << "Number of parsed words: " << M.size() << std::endl;
+        std::cout << "Number of parsed words: " << count << std::endl;
 
         // Set the inital hash value
-        /* init_hash(); */
+        init_hash();
 
-        /* std::cout << "Hash:" << std::endl; */
-        /* for (int i = 0; i < 8; ++i) */
-        /*     std::cout << std::hex << H[N - 1][i] << std::dec << " "; */
-        /* std::cout << std::endl; */
+        std::cout << "Init hash:" << std::endl;
+        for (int i = 0; i < 8; ++i)
+            std::cout << std::hex << H[0][i] << std::dec << " ";
+        std::cout << std::endl;
 
         // Compute the hash value
-        /* compute_hash(); */
+        compute_hash();
+
+        std::cout << "Final hash:" << std::endl;
+        for (int i = 0; i < 8; ++i)
+            std::cout << std::hex << H[N][i] << std::dec << " ";
+        std::cout << std::endl;
 
         // Output the generated hash value
-        /* output_hash(); */
+        output_hash();
 
         // Reset message to hash a new one
-        /* clear(); */
+        clear();
     }
 }

@@ -15,7 +15,7 @@ std::vector<BYTE> bytes;          // Plain and padded message bytes
 WORD H[8][8];                     // Hashed message
 WORD W[80];                       // Message schedule
 ll l = 0;                         // Message length in bits
-int N;                            // Blocks in padded message
+int N;                            // Number of blocks in padded message
 
 // Working variables
 WORD a, b, c, d, e, f, g, h;
@@ -146,19 +146,35 @@ const WORD SHR(const WORD &n, const WORD &x)
 }
 
 /**
- * Logical function sigma^256_0(x) in hash algorithm.
+ * Logical function (small) sigma^256_0(x) in hash algorithm.
  */
-const WORD sigma0(const WORD &x)
+const WORD ssigma0(const WORD &x)
 {
     return ROTR(7, x) ^ ROTR(18, x) ^ SHR(3, x);
 }
 
 /**
- * Logical function sigma^256_1(x) in hash algorithm.
+ * Logical function (small) sigma^256_1(x) in hash algorithm.
  */
-const WORD sigma1(const WORD &x)
+const WORD ssigma1(const WORD &x)
 {
     return ROTR(17, x) ^ ROTR(19, x) ^ SHR(10, x);
+}
+
+/**
+ * Logical function (large) sigma^256_0(x) in hash algorithm.
+ */
+const WORD lsigma0(const WORD &x)
+{
+    return ROTR(2, x) ^ ROTR(13, x) ^ ROTR(22, x);
+}
+
+/**
+ * Logical function (large) sigma^256_1(x) in hash algorithm.
+ */
+const WORD lsigma1(const WORD &x)
+{
+    return ROTR(6, x) ^ ROTR(11, x) ^ ROTR(25, x);
 }
 
 /**
@@ -166,14 +182,15 @@ const WORD sigma1(const WORD &x)
  */
 const void compute_hash()
 {
-    for (WORD i = 1; i <= N; ++i)
+    for (int i = 1; i <= N; ++i)
     {
         // Prepare message schedule
         for (int t = 0; t <= 15; ++t)
             W[t] = M[i][t];
         for (int t = 16; t <= 63; ++t)
-            W[t] = sigma1(W[t - 2]) + W[t - 7] + sigma0(W[t - 15]) + W[t - 16];
+            W[t] = ssigma1(W[t - 2]) + W[t - 7] + ssigma0(W[t - 15]) + W[t - 16];
 
+        // Initialise working variables with previous hash value
         a = H[i - 1][0];
         b = H[i - 1][1];
         c = H[i - 1][2];
@@ -182,6 +199,10 @@ const void compute_hash()
         f = H[i - 1][5];
         g = H[i - 1][6];
         h = H[i - 1][7];
+
+        for (int t = 0; t <= 63; ++t)
+        {
+        }
     }
 }
 
@@ -191,7 +212,7 @@ const void compute_hash()
 const void clear()
 {
     bytes.clear();
-    M.clear();
+    M.clear(); // TODO Does this properly clear the subvectors?
 }
 
 int main()

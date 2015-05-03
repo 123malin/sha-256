@@ -22,7 +22,6 @@ const void store_message_bytes(const std::string &hex_str)
     for (int i = 0, j = 0; i < str_length / 2; ++i, j += 2)
     {
         BYTE byte = std::stoi(hex_str.substr(j, 2), nullptr, 16);
-        std::cout << "Store byte: " << (WORD) byte << std::endl;
         bytes.push_back(byte);
         l += 8;
     }
@@ -49,8 +48,6 @@ const void pad_message()
 
     if (l % 512 == 0) return; // No padding necessary
 
-    // TODO Handle l > 512
-
     std::cout << "k: " << k << std::endl;
 
     // Append 1 followed by zeroes before the least significant bit,
@@ -68,14 +65,14 @@ const void pad_message()
 
     std::cout << "zeroes: " << zeroes << std::endl;
 
-    // l = 0x8040201008040201; // DEBUG
+    /* l = 0x8040201008040201; // DEBUG */
 
     // Finally append the length in binary to the message as the least
     // significant bits, assuming a 64-bit number
     for (int i = 1; i < 9; ++i)
     {
         bytes.push_back(l >> (64 - i * 8));
-        std::cout << "Append byte: " << (WORD) (BYTE) (l >> (64 - i * 8)) << std::endl;
+        /* std::cout << "Append byte: " << (WORD) (BYTE) (l >> (64 - i * 8)) << std::endl; */
     }
 }
 
@@ -83,12 +80,12 @@ int main()
 {
     // Read each line as a hex string to be hashed
     for (std::string line; std::getline(std::cin, line);) {
-        // TODO Handle empty lines and the byte 0x00
+        // TODO Handle empty lines
         store_message_bytes(line);
 
-        std::cout << "Read plain bytes: ";
+        std::cout << "Read plain bytes:" << std::endl;
         for (WORD i = 0; i < bytes.size(); ++i)
-            std::cout << (WORD) bytes[i] << " ";
+            std::cout << std::hex << (WORD) bytes[i] << " ";
         std::cout << std::endl;
         std::cout << "l: " << l << std::endl;
 
@@ -97,12 +94,12 @@ int main()
         // Check if message needs padding
         if (l % 512 != 0) pad_message();
 
-        std::cout << "Padded: ";
+        std::cout << "Padded bytes:" << std::endl;
         for (WORD i = 0; i < bytes.size(); ++i)
-            std::cout << (WORD) bytes[i] << " ";
+            std::cout << std::hex << (WORD) bytes[i] << " ";
         std::cout << std::endl;
 
-        std::cout << "Padded bytes: " << bytes.size() << std::endl;
+        std::cout << "Number of padded bytes: " << bytes.size() << std::endl;
 
         bytes.clear(); // Reset message to hash a new one
         // TODO Reset M as well

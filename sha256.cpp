@@ -1,3 +1,7 @@
+/**
+ * SHA-256 implemented according to the specification:
+ * http://csrc.nist.gov/publications/fips/fips180-4/fips-180-4.pdf
+ */
 #include <iostream>
 #include <vector>
 #include <sstream>
@@ -76,32 +80,61 @@ const void pad_message()
     }
 }
 
+/**
+ * Parse the message into N 512-bit blocks.
+ */
+const void parse_message()
+{
+    for (WORD i = 0, j = 0; i < bytes.size() / 4; ++i)
+    {
+        WORD word = 0;
+        for (int k = 0; k < 4; ++k, ++j)
+        {
+            word <<= 8;
+            word |= bytes[j];
+        }
+        M.push_back(word);
+    }
+}
+
 int main()
 {
     // Read each line as a hex string to be hashed
     for (std::string line; std::getline(std::cin, line);) {
         // TODO Handle empty lines
+        // Store the plain bytes of the message
         store_message_bytes(line);
 
         std::cout << "Read plain bytes:" << std::endl;
         for (WORD i = 0; i < bytes.size(); ++i)
-            std::cout << std::hex << (WORD) bytes[i] << " ";
+            std::cout << std::hex << (WORD) bytes[i] << std::dec << " ";
         std::cout << std::endl;
         std::cout << "l: " << l << std::endl;
 
         std::cout << "Number of plain bytes: " << bytes.size() << std::endl;
 
-        // Check if message needs padding
+        // Pad the bytes if necessary
         if (l % 512 != 0) pad_message();
 
         std::cout << "Padded bytes:" << std::endl;
         for (WORD i = 0; i < bytes.size(); ++i)
-            std::cout << std::hex << (WORD) bytes[i] << " ";
+            std::cout << std::hex << (WORD) bytes[i] << std::dec << " ";
         std::cout << std::endl;
 
         std::cout << "Number of padded bytes: " << bytes.size() << std::endl;
 
-        bytes.clear(); // Reset message to hash a new one
-        // TODO Reset M as well
+        // Parse message into word blocks
+        parse_message();
+
+        std::cout << "Parsed words:" << std::endl;
+        for (WORD i = 0; i < M.size(); ++i)
+            std::cout << std::hex << M[i] << std::dec << " ";
+        std::cout << std::endl;
+
+        std::cout << "Number of parsed words: " << M.size() << std::endl;
+
+        // Reset message to hash a new one
+        bytes.clear();
+        M.clear();
     }
 }

@@ -10,14 +10,15 @@ typedef unsigned char BYTE;
 typedef unsigned int WORD;
 typedef unsigned long long ll;
 
-std::vector<BYTE> bytes; // Plain and padded message bytes
-std::vector<WORD> M;     // Message to be hashed
-std::vector<WORD> H(8);  // Hashed message
-std::vector<WORD> W(80); // Message schedule
-ll l = 0;                // Message length in bits
+std::vector<std::vector<WORD>> M; // Message to be hashed
+std::vector<BYTE> bytes;          // Plain and padded message bytes
+WORD H[8][8];                     // Hashed message
+WORD W[80];                       // Message schedule
+ll l = 0;                         // Message length in bits
+int N;                            // Blocks in padded message
 
 // Working variables
-WORD a, b, c, d, e;
+WORD a, b, c, d, e, f, g, h;
 
 // Temporary variables
 WORD T1, T2;
@@ -89,20 +90,28 @@ const void pad_message()
 }
 
 /**
- * Parse the message into N 512-bit blocks.
+ * Parse the message into N 512-bit blocks split up into words.
+ * Also update N.
  */
 const void parse_message()
 {
-    for (WORD i = 0, j = 0; i < bytes.size() / 4; ++i)
+    WORD n = 0;
+    for (int i = 0; n < bytes.size() / 16; ++n)
     {
-        WORD word = 0;
-        for (int k = 0; k < 4; ++k, ++j)
+        std::vector<WORD> block(16); // TODO Will this be destroyed?
+        for (int j = 0; j < 16; ++j)
         {
-            word <<= 8;
-            word |= bytes[j];
+            WORD word = 0;
+            for (int k = 0; k < 4; ++k, ++i)
+            {
+                word <<= 8;
+                word |= bytes[i];
+            }
+            block[j] = word;
         }
-        M.push_back(word);
+        M.push_back(block);
     }
+    N = n;
 }
 
 /**
@@ -110,14 +119,14 @@ const void parse_message()
  */
 const void init_hash()
 {
-    H = {0x6a09e667,
-         0xbb67ae85,
-         0x3c6ef372,
-         0xa54ff53a,
-         0x510e527f,
-         0x9b05688c,
-         0x1f83d9ab,
-         0x5be0cd19};
+    H[0][0] = 0x6a09e667;
+    H[0][1] = 0xbb67ae85;
+    H[0][2] = 0x3c6ef372;
+    H[0][3] = 0xa54ff53a;
+    H[0][4] = 0x510e527f;
+    H[0][5] = 0x9b05688c;
+    H[0][6] = 0x1f83d9ab;
+    H[0][7] = 0x5be0cd19;
 }
 
 /**
@@ -157,13 +166,22 @@ const WORD sigma1(const WORD &x)
  */
 const void compute_hash()
 {
-    for (WORD i = 1; i <= M.size(); ++i)
+    for (WORD i = 1; i <= N; ++i)
     {
         // Prepare message schedule
         for (int t = 0; t <= 15; ++t)
-            W[t] = M[t];
+            W[t] = M[i][t];
         for (int t = 16; t <= 63; ++t)
             W[t] = sigma1(W[t - 2]) + W[t - 7] + sigma0(W[t - 15]) + W[t - 16];
+
+        a = H[i - 1][0];
+        b = H[i - 1][1];
+        c = H[i - 1][2];
+        d = H[i - 1][3];
+        e = H[i - 1][4];
+        f = H[i - 1][5];
+        g = H[i - 1][6];
+        h = H[i - 1][7];
     }
 }
 
@@ -174,8 +192,6 @@ const void clear()
 {
     bytes.clear();
     M.clear();
-    H.clear();
-    W.clear();
 }
 
 int main()
@@ -209,8 +225,11 @@ int main()
 
         std::cout << "Parsed words:" << std::endl;
         for (WORD i = 0; i < M.size(); ++i)
-            std::cout << std::hex << M[i] << std::dec << " ";
-        std::cout << std::endl;
+        {
+            for (WORD j = 0; j < 16; ++j)
+                std::cout << std::hex << M[i][j] << std::dec << " ";
+            std::cout << std::endl;
+        }
 
         std::cout << "Number of parsed words: " << M.size() << std::endl;
 
@@ -218,8 +237,8 @@ int main()
         init_hash();
 
         std::cout << "Hash:" << std::endl;
-        for (WORD i = 0; i < H.size(); ++i)
-            std::cout << std::hex << H[i] << std::dec << " ";
+        for (int i = 0; i < 8; ++i)
+            std::cout << std::hex << H[N - 1][i] << std::dec << " ";
         std::cout << std::endl;
 
         // Compute the hash value

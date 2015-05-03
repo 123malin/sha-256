@@ -106,7 +106,7 @@ const void pad_message()
 const void parse_message()
 {
     WORD n = 0;
-    for (int i = 0; n < bytes.size() / 16; ++n)
+    for (int i = 0; n < bytes.size() / 64; ++n)
     {
         std::vector<WORD> block(16); // TODO Will this be destroyed?
         for (int j = 0; j < 16; ++j)
@@ -122,6 +122,7 @@ const void parse_message()
         M.push_back(block);
     }
     N = n;
+    std::cout << "N: " << N << std::endl;
 }
 
 /**
@@ -336,20 +337,20 @@ int main()
         std::cout << "Number of parsed words: " << M.size() << std::endl;
 
         // Set the inital hash value
-        init_hash();
+        /* init_hash(); */
 
-        std::cout << "Hash:" << std::endl;
-        for (int i = 0; i < 8; ++i)
-            std::cout << std::hex << H[N - 1][i] << std::dec << " ";
-        std::cout << std::endl;
+        /* std::cout << "Hash:" << std::endl; */
+        /* for (int i = 0; i < 8; ++i) */
+        /*     std::cout << std::hex << H[N - 1][i] << std::dec << " "; */
+        /* std::cout << std::endl; */
 
         // Compute the hash value
-        compute_hash();
+        /* compute_hash(); */
 
         // Output the generated hash value
-        output_hash();
+        /* output_hash(); */
 
         // Reset message to hash a new one
-        clear();
+        /* clear(); */
     }
 }

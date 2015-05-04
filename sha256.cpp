@@ -2,6 +2,7 @@
  * SHA-256 implemented according to the specification:
  * http://csrc.nist.gov/publications/fips/fips180-4/fips-180-4.pdf
  */
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -249,7 +250,7 @@ const void output_hash()
 {
     // Concatenate the final hash blocks
     for (int i = 0; i < 8; ++i)
-        std::cout << std::hex << H[N][i];
+        std::cout << std::hex << std::setw(8) << std::setfill('0') << H[N][i];
     std::cout << std::endl;
 }
 

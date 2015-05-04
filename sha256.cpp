@@ -66,8 +66,6 @@ const int calc_padding()
 const void pad_message()
 {
     int k = calc_padding();
-    if (l == 0) return; // Don't pad the empty string
-
     // Append 1 followed by zeroes before the least significant bit,
     // assuming full bytes as input
     bytes.push_back(0x80);
